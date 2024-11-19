@@ -13,7 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
-@Entity
+@Entity //Entidade gerenciada pelo JPA
 @Table(name = "tb_user") //Renomeando a tabela porque a palavra "User" é reservada no H2
 public class User implements Serializable {
 	private static final long serialVersionUID = 1L;
