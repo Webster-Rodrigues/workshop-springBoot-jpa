@@ -21,35 +21,32 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "tb_order")
-public class Order implements Serializable{
+public class Order implements Serializable {
 	private static final long serialVersionUID = 1L;
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long Id;
-	
+
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyy-mm-dd'T'HH:mm:ss'Z'", timezone = "GMT")
 	private Instant moment;
-	
+
 	private Integer orderStatus;
-	
+
 	@ManyToOne
 	@JoinColumn(name = "client_id")
 	private User client;
-	
-	
+
 	@OneToMany(mappedBy = "id.order")
-	private Set<OrderItem> items = new HashSet<>(); 
-	
-	@OneToOne(mappedBy = "order", cascade = CascadeType.ALL) //Define o mesmo id para as entidades associadas 
+	private Set<OrderItem> items = new HashSet<>();
+
+	@OneToOne(mappedBy = "order", cascade = CascadeType.ALL) // Define o mesmo id para as entidades associadas
 	private Payment payment;
-	
-	
+
 	public Order() {
-		
+
 	}
-	
-		
+
 	public Order(Long id, Instant moment, OrderStatus orderStatus, User client) {
 		Id = id;
 		this.moment = moment;
@@ -57,21 +54,17 @@ public class Order implements Serializable{
 		this.client = client;
 	}
 
-
 	public Long getId() {
 		return Id;
 	}
-
 
 	public void setId(Long id) {
 		Id = id;
 	}
 
-
 	public Instant getMoment() {
 		return moment;
 	}
-
 
 	public void setMoment(Instant moment) {
 		this.moment = moment;
@@ -81,37 +74,40 @@ public class Order implements Serializable{
 		return OrderStatus.valueOf(orderStatus);
 	}
 
-
 	public void setOrderStatus(OrderStatus orderStatus) {
-		if(orderStatus != null) {
+		if (orderStatus != null) {
 			this.orderStatus = orderStatus.getCode();
 		}
-		
-	}
 
+	}
 
 	public User getClient() {
 		return client;
 	}
 
-
 	public void setClient(User client) {
 		this.client = client;
 	}
-	
-	
+
 	public Payment getPayment() {
 		return payment;
 	}
-
 
 	public void setPayment(Payment payment) {
 		this.payment = payment;
 	}
 
-
-	public Set<OrderItem> getItems(){
+	public Set<OrderItem> getItems() {
 		return items;
+	}
+
+	public Double getTotal() {
+		double sum = 0.0;
+		for (OrderItem item : items) {
+			sum += item.getSubTotal();
+		}
+		
+		return sum;
 	}
 
 	@Override
@@ -121,7 +117,6 @@ public class Order implements Serializable{
 		result = prime * result + ((Id == null) ? 0 : Id.hashCode());
 		return result;
 	}
-
 
 	@Override
 	public boolean equals(Object obj) {
@@ -139,8 +134,5 @@ public class Order implements Serializable{
 			return false;
 		return true;
 	}
-	
-	
-	
 
 }
