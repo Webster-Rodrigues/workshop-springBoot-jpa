@@ -5,13 +5,14 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import com.websterProjects.course.entities.User;
 import com.websterProjects.course.repositories.UserRepository;
 import com.websterProjects.course.services.exceptions.DatabaseException;
 import com.websterProjects.course.services.exceptions.ResourceNotFoundException;
+
+import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class UserService {
@@ -33,11 +34,12 @@ public class UserService {
 	}
 	
 	public void delete(Long id) {
+		if(!repository.existsById(id)) {
+			throw new ResourceNotFoundException(id);
+		}
+		
 		try {
 			repository.deleteById(id);
-		}
-		catch (EmptyResultDataAccessException e) {
-			throw new ResourceNotFoundException(id);
 		}
 		catch (DataIntegrityViolationException e) {
 			throw new DatabaseException(e.getMessage());
@@ -47,9 +49,15 @@ public class UserService {
 	
 	
 	public User update(Long id, User obj) {
-		User entity = repository.getReferenceById(id); //Instância um usuário sem ir ao banco de dado. Ele prepara o obj monitorado
-		updateData(entity, obj);
-		return repository.save(entity);
+		try{
+			User entity = repository.getReferenceById(id); //Instância um usuário sem ir ao banco de dado. Ele prepara o obj monitorado
+			updateData(entity, obj);
+			return repository.save(entity);
+		} 
+		catch (EntityNotFoundException e) {
+			throw new ResourceNotFoundException(id);
+		}
+		
 	}
 
 	private void updateData(User entity, User obj) {
